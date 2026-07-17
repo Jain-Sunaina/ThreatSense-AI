@@ -1,0 +1,258 @@
+/* ═══════════════════════════════════════════════════════════════
+   ThreatSense AI — Dashboard Styles
+   Theme: Dark with Blue/Cyan highlights
+═══════════════════════════════════════════════════════════════ */
+
+/* ── CSS Variables ───────────────────────────────────────────── */
+:root {
+  --ts-bg:          #0b0f1a;
+  --ts-surface:     #111827;
+  --ts-surface-2:   #1a2236;
+  --ts-border:      #1e2d45;
+  --ts-cyan:        #00d4ff;
+  --ts-cyan-dim:    rgba(0, 212, 255, 0.12);
+  --ts-text:        #e2e8f0;
+  --ts-text-muted:  #64748b;
+  --ts-card-radius: 12px;
+  --ts-transition:  0.25s ease;
+}
+
+/* ── Base ────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  background-color: var(--ts-bg);
+  color: var(--ts-text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+}
+
+/* ── Utility: Cyan colour ────────────────────────────────────── */
+.text-cyan       { color: var(--ts-cyan) !important; }
+.bg-cyan         { background-color: var(--ts-cyan) !important; }
+.border-cyan     { border-color: var(--ts-cyan) !important; }
+
+/* ── Navbar ──────────────────────────────────────────────────── */
+.ts-navbar {
+  background: var(--ts-surface);
+  border-bottom: 1px solid var(--ts-border);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+.ts-navbar .nav-link {
+  color: var(--ts-text-muted);
+  font-size: .875rem;
+  padding: .45rem .75rem;
+  border-radius: 8px;
+  transition: color var(--ts-transition), background var(--ts-transition);
+}
+
+.ts-navbar .nav-link:hover,
+.ts-navbar .nav-link.active {
+  color: var(--ts-cyan);
+  background: var(--ts-cyan-dim);
+}
+
+.ts-logo-text { letter-spacing: .03em; }
+
+/* System-online dot */
+.ts-status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #22c55e;
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .4; }
+}
+
+/* ── Stat Cards ──────────────────────────────────────────────── */
+.ts-card {
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-card-radius);
+  transition: border-color var(--ts-transition), transform var(--ts-transition);
+}
+
+.ts-card:hover {
+  border-color: rgba(0, 212, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.ts-card-label {
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--ts-text-muted);
+}
+
+.ts-card-value {
+  font-size: 1.85rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.ts-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Accuracy progress bar */
+.ts-progress {
+  background: var(--ts-border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.ts-progress .progress-bar.bg-cyan {
+  background: linear-gradient(90deg, #0072ff, var(--ts-cyan)) !important;
+  border-radius: 99px;
+  transition: width 1s ease;
+}
+
+/* ── Tables ──────────────────────────────────────────────────── */
+.ts-table {
+  color: var(--ts-text);
+  font-size: .85rem;
+}
+
+.ts-table thead th {
+  color: var(--ts-text-muted);
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  border-bottom: 1px solid var(--ts-border);
+  padding-bottom: .65rem;
+  font-weight: 600;
+  background: transparent;
+}
+
+.ts-table tbody tr {
+  border-bottom: 1px solid var(--ts-border);
+  transition: background var(--ts-transition);
+}
+
+.ts-table tbody tr:last-child { border-bottom: none; }
+
+.ts-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.ts-table td {
+  padding: .6rem .5rem;
+  vertical-align: middle;
+}
+
+/* Status badges */
+.ts-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .2rem .6rem;
+  border-radius: 99px;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+
+.ts-badge-healthy  { background: rgba(34,197,94,.15);  color: #22c55e; }
+.ts-badge-warning  { background: rgba(234,179,8,.15);  color: #eab308; }
+.ts-badge-danger   { background: rgba(239,68,68,.15);  color: #ef4444; }
+.ts-badge-offline  { background: rgba(100,116,139,.15); color: #94a3b8; }
+
+/* Severity badges */
+.ts-sev-low      { background: rgba(34,197,94,.15);   color: #22c55e; }
+.ts-sev-medium   { background: rgba(234,179,8,.15);   color: #eab308; }
+.ts-sev-high     { background: rgba(249,115,22,.15);  color: #f97316; }
+.ts-sev-critical { background: rgba(239,68,68,.15);   color: #ef4444; }
+
+/* Legend dots next to chart */
+.ts-badge-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .75rem;
+}
+
+.ts-badge-dot span {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ── Chart ───────────────────────────────────────────────────── */
+.ts-chart-wrap {
+  position: relative;
+  height: 280px;
+  width: 100%;
+}
+
+/* ── Inject Attack Button ────────────────────────────────────── */
+.ts-btn-attack {
+  background: linear-gradient(135deg, #7f1d1d, #dc2626);
+  color: #fff;
+  border: 1px solid rgba(239,68,68,.5);
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: .875rem;
+  letter-spacing: .03em;
+  transition: all var(--ts-transition);
+  box-shadow: 0 0 20px rgba(220,38,38,.25);
+}
+
+.ts-btn-attack:hover {
+  background: linear-gradient(135deg, #991b1b, #ef4444);
+  color: #fff;
+  box-shadow: 0 0 30px rgba(239,68,68,.45);
+  transform: translateY(-1px);
+}
+
+.ts-btn-attack:active {
+  transform: translateY(0);
+}
+
+/* ── Toast ───────────────────────────────────────────────────── */
+.ts-toast {
+  background: var(--ts-surface-2);
+  border: 1px solid rgba(239,68,68,.4);
+  color: var(--ts-text);
+  min-width: 280px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--ts-bg); }
+::-webkit-scrollbar-thumb { background: var(--ts-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #2d4165; }
+
+/* ── New-incident flash row ──────────────────────────────────── */
+@keyframes incident-flash {
+  0%   { background: rgba(239,68,68,.18); }
+  100% { background: transparent; }
+}
+
+.ts-incident-new {
+  animation: incident-flash 1.8s ease forwards;
+}
+
+/* ── Responsive tweaks ───────────────────────────────────────── */
+@media (max-width: 575.98px) {
+  .ts-card-value { font-size: 1.4rem; }
+  .ts-chart-wrap { height: 220px; }
+}
