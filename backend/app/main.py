@@ -5,9 +5,10 @@ import numpy as np
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
+from pathlib import Path
 # ── Model path (relative to where run.py is executed: project root) ──
-MODEL_PATH = "data/models/model.pkl"
+BASE_DIR = Path(__file__).resolve().parents[2]
+MODEL_PATH = BASE_DIR / "data" / "models" / "model.pkl"
 
 # ── Load model once at startup via lifespan ───────────────────────────
 @asynccontextmanager
