@@ -251,6 +251,45 @@ body {
   animation: incident-flash 1.8s ease forwards;
 }
 
+/* ── Device mini-stat boxes ──────────────────────────────────── */
+.ts-mini-stat {
+  background: var(--ts-surface-2);
+  border: 1px solid var(--ts-border);
+  border-radius: 8px;
+  padding: .4rem .2rem;
+}
+
+/* ── Alert filter buttons ────────────────────────────────────── */
+.ts-filter-btn {
+  background: var(--ts-surface-2);
+  border: 1px solid var(--ts-border);
+  color: var(--ts-text-muted);
+  border-radius: 8px;
+  font-size: .8rem;
+  padding: .3rem .85rem;
+  transition: all var(--ts-transition);
+}
+.ts-filter-btn:hover,
+.ts-filter-btn.active {
+  background: var(--ts-cyan-dim);
+  border-color: var(--ts-cyan);
+  color: var(--ts-cyan);
+}
+
+/* ── Outline-cyan button ─────────────────────────────────────── */
+.btn-outline-cyan {
+  border: 1px solid var(--ts-cyan);
+  color: var(--ts-cyan);
+  background: transparent;
+  border-radius: 8px;
+  font-size: .8rem;
+  transition: all var(--ts-transition);
+}
+.btn-outline-cyan:hover {
+  background: var(--ts-cyan-dim);
+  color: var(--ts-cyan);
+}
+
 /* ── Responsive tweaks ───────────────────────────────────────── */
 @media (max-width: 575.98px) {
   .ts-card-value { font-size: 1.4rem; }

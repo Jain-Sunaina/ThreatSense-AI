@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ThreatSense AI — Settings</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-dark ts-navbar px-4 py-2">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+      <i class="bi bi-shield-fill-exclamation fs-4 text-cyan"></i>
+      <span class="ts-logo-text fw-bold fs-5">ThreatSense <span class="text-cyan">AI</span></span>
+    </a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+        <li class="nav-item"><a class="nav-link"        href="index.html"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link"         href="devices.html"><i class="bi bi-cpu me-1"></i>Devices</a></li>
+        <li class="nav-item"><a class="nav-link"         href="alerts.html"><i class="bi bi-bell me-1"></i>Alerts</a></li>
+        <li class="nav-item"><a class="nav-link active"  href="settings.html"><i class="bi bi-gear me-1"></i>Settings</a></li>
+      </ul>
+      <div class="d-flex align-items-center ms-lg-4 mt-3 mt-lg-0 gap-2">
+        <span class="ts-status-dot"></span>
+        <span class="text-muted small">System Online</span>
+        <img src="https://ui-avatars.com/api/?name=Admin&background=0d6efd&color=fff&size=32&rounded=true"
+             alt="Admin" class="rounded-circle ms-2" width="32" height="32" />
+      </div>
+    </div>
+  </nav>
+
+  <main class="container-fluid px-4 py-4">
+
+    <div class="mb-4">
+      <h4 class="mb-0 fw-semibold"><i class="bi bi-gear text-cyan me-2"></i>System Settings</h4>
+      <small class="text-muted" id="live-time">Loading...</small>
+    </div>
+
+    <div class="row g-3">
+
+      <!-- System Health Card -->
+      <div class="col-12 col-lg-6">
+        <div class="ts-card p-4 h-100">
+          <h6 class="fw-semibold mb-4 text-cyan">
+            <i class="bi bi-heart-pulse me-2"></i>System Health
+          </h6>
+          <div id="health-content">
+            <div class="text-center text-muted py-4">
+              <i class="bi bi-hourglass-split fs-2 d-block mb-2 opacity-25"></i>Loading...
+            </div>
+          </div>
+          <div class="mt-4">
+            <button class="btn btn-outline-cyan btn-sm px-3" onclick="loadHealth()">
+              <i class="bi bi-arrow-clockwise me-1"></i>Refresh Status
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Info Card -->
+      <div class="col-12 col-lg-6">
+        <div class="ts-card p-4 h-100">
+          <h6 class="fw-semibold mb-4 text-cyan">
+            <i class="bi bi-info-circle me-2"></i>Application Info
+          </h6>
+          <div id="info-content">
+            <div class="text-center text-muted py-4">
+              <i class="bi bi-hourglass-split fs-2 d-block mb-2 opacity-25"></i>Loading...
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    'use strict';
+
+    function statusBadge(val, okLabel = 'OK', badLabel = 'Error') {
+      const ok = val === true || (typeof val === 'string' && ['loaded','connected','healthy','running'].includes(val.toLowerCase()));
+      return ok
+        ? `<span class="ts-badge ts-badge-healthy"><i class="bi bi-check-circle-fill"></i>${okLabel}</span>`
+        : `<span class="ts-badge ts-badge-danger"><i class="bi bi-x-circle-fill"></i>${badLabel}</span>`;
+    }
+
+    function row(label, value) {
+      return `
+        <div class="d-flex justify-content-between align-items-center py-2 border-bottom" style="border-color:var(--ts-border)!important;">
+          <span class="text-muted small">${label}</span>
+          <span class="fw-semibold">${value}</span>
+        </div>`;
+    }
+
+    async function loadHealth() {
+      const hc = document.getElementById('health-content');
+      const ic = document.getElementById('info-content');
+
+      const data = await API.health();
+
+      if (!data) {
+        hc.innerHTML = `<div class="text-danger"><i class="bi bi-x-circle me-2"></i>Cannot reach backend.</div>`;
+        return;
+      }
+
+      hc.innerHTML = `
+        ${row('Backend Status',    statusBadge(data.status))}
+        ${row('Model Status',      statusBadge(data.model_status, data.model_status, data.model_status))}
+        ${row('Database Status',   statusBadge(data.db_status,    data.db_status,    data.db_status))}
+        ${row('System Health',     statusBadge(data.system_health, data.system_health, data.system_health))}`;
+
+      ic.innerHTML = `
+        ${row('Model Name',         `<span class="text-cyan">${data.model_name}</span>`)}
+        ${row('Last Prediction',    data.last_prediction ? new Date(data.last_prediction).toLocaleString() : '—')}
+        ${row('API Endpoint',       `<code style="font-size:.78rem;">${data.api_endpoint}</code>`)}
+        ${row('Application Version',`<span class="badge bg-primary bg-opacity-20 text-primary">v${data.version}</span>`)}`;
+    }
+
+    function updateClock() {
+      const el = document.getElementById('live-time');
+      if (el) el.textContent = new Date().toLocaleString();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateClock();
+      setInterval(updateClock, 1000);
+      loadHealth();
+      setInterval(loadHealth, 30000);
+    });
+  </script>
+</body>
+</html>

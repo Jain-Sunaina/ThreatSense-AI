@@ -1,32 +1,47 @@
 /* ═══════════════════════════════════════════════════════════════
-   ThreatSense AI — API helpers
+   ThreatSense AI — Centralised API helpers
 ═══════════════════════════════════════════════════════════════ */
 
-const API_URL = "https://threatsense-ai.onrender.com";
+'use strict';
 
-/**
- * Send sensor readings to the backend and get an AI prediction.
- * @param {number} temperature  - e.g. 29.4
- * @param {number} humidity     - e.g. 61.2
- * @param {number} air_quality  - e.g. 88
- * @returns {Promise<{prediction: string}>}  "Normal" | "Anomaly"
- */
-async function getPrediction(temperature, humidity, air_quality) {
+const API_URL =
+    window.location.hostname === "localhost"
+        ? "http://127.0.0.1:8000"
+        : "https://threatsense-ai.onrender.com";
+
+async function _get(path) {
   try {
-    const response = await fetch(`${API_URL}/predict`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ temperature, humidity, air_quality }),
-    });
-
-    if (!response.ok) {
-      console.error(`[ThreatSense] /predict returned HTTP ${response.status}`);
-      return { prediction: "Error" };
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("[ThreatSense] Could not reach backend:", error);
-    return { prediction: "Server Offline" };
+    const r = await fetch(`${API_URL}${path}`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return await r.json();
+  } catch (e) {
+    console.error(`[API] GET ${path}:`, e.message);
+    throw e;
   }
 }
+
+async function _post(path, body) {
+  try {
+    const r = await fetch(`${API_URL}${path}`, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify(body),
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return await r.json();
+  } catch (e) {
+    console.error(`[API] POST ${path}:`, e.message);
+    throw e;
+  }
+}
+
+const API = {
+  predict:  (temperature, humidity, air_quality, device_id = "DEV-01") =>
+              _post("/predict", { temperature, humidity, air_quality, device_id }),
+
+  devices:  ()               => _get("/devices"),
+  alerts:   (severity = "")  => _get(`/alerts${severity ? `?severity=${severity}` : ""}`),
+  history:  (device_id = "")  => _get(`/history${device_id ? `?device_id=${device_id}` : ""}`),
+  stats:    ()               => _get("/stats"),
+  health:   ()               => _get("/health"),
+};

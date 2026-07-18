@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ThreatSense AI — Alerts</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-dark ts-navbar px-4 py-2">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+      <i class="bi bi-shield-fill-exclamation fs-4 text-cyan"></i>
+      <span class="ts-logo-text fw-bold fs-5">ThreatSense <span class="text-cyan">AI</span></span>
+    </a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+        <li class="nav-item"><a class="nav-link"        href="index.html"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link"         href="devices.html"><i class="bi bi-cpu me-1"></i>Devices</a></li>
+        <li class="nav-item"><a class="nav-link active"  href="alerts.html"><i class="bi bi-bell me-1"></i>Alerts</a></li>
+        <li class="nav-item"><a class="nav-link"         href="settings.html"><i class="bi bi-gear me-1"></i>Settings</a></li>
+      </ul>
+      <div class="d-flex align-items-center ms-lg-4 mt-3 mt-lg-0 gap-2">
+        <span class="ts-status-dot"></span>
+        <span class="text-muted small">System Online</span>
+        <img src="https://ui-avatars.com/api/?name=Admin&background=0d6efd&color=fff&size=32&rounded=true"
+             alt="Admin" class="rounded-circle ms-2" width="32" height="32" />
+      </div>
+    </div>
+  </nav>
+
+  <main class="container-fluid px-4 py-4">
+
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 gap-3">
+      <div>
+        <h4 class="mb-0 fw-semibold"><i class="bi bi-bell text-danger me-2"></i>Security Alerts</h4>
+        <small class="text-muted" id="live-time">Loading...</small>
+      </div>
+      <span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-25 px-3 py-2">
+        <i class="bi bi-circle-fill me-1" style="font-size:.45rem;vertical-align:middle;"></i>Live Feed
+      </span>
+    </div>
+
+    <!-- Filter buttons -->
+    <div class="d-flex gap-2 flex-wrap mb-4">
+      <button class="btn ts-filter-btn active" data-filter="all"      onclick="setFilter(this,'all')">All</button>
+      <button class="btn ts-filter-btn"        data-filter="Critical" onclick="setFilter(this,'Critical')">
+        <i class="bi bi-exclamation-octagon me-1"></i>Critical
+      </button>
+      <button class="btn ts-filter-btn"        data-filter="High"     onclick="setFilter(this,'High')">
+        <i class="bi bi-exclamation-triangle me-1"></i>High
+      </button>
+      <button class="btn ts-filter-btn"        data-filter="Warning"  onclick="setFilter(this,'Warning')">
+        <i class="bi bi-exclamation-circle me-1"></i>Warning
+      </button>
+      <button class="btn ts-filter-btn"        data-filter="Info"     onclick="setFilter(this,'Info')">
+        <i class="bi bi-info-circle me-1"></i>Info
+      </button>
+    </div>
+
+    <div class="ts-card p-3">
+      <div class="table-responsive">
+        <table class="table ts-table align-middle mb-0">
+          <thead>
+            <tr>
+              <th><i class="bi bi-clock me-1 text-muted"></i>Time</th>
+              <th><i class="bi bi-exclamation-circle me-1 text-muted"></i>Severity</th>
+              <th><i class="bi bi-cpu me-1 text-muted"></i>Device</th>
+              <th><i class="bi bi-file-text me-1 text-muted"></i>Description</th>
+              <th><i class="bi bi-robot me-1 text-muted"></i>Prediction</th>
+            </tr>
+          </thead>
+          <tbody id="alerts-tbody">
+            <tr><td colspan="5" class="text-center text-muted py-4">Loading alerts...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-3 text-end">
+        <small class="text-muted" id="alert-count"></small>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    'use strict';
+
+    let currentFilter = 'all';
+
+    function severityClass(s) {
+      return { Info:'ts-sev-low', Warning:'ts-sev-medium', High:'ts-sev-high', Critical:'ts-sev-critical' }[s] || 'ts-sev-low';
+    }
+    function fmtTime(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleString();
+    }
+
+    async function loadAlerts() {
+      const tbody = document.getElementById('alerts-tbody');
+      const data  = await API.alerts(currentFilter === 'all' ? '' : currentFilter);
+
+      if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">
+          <i class="bi bi-bell-slash fs-2 d-block mb-2 opacity-25"></i>No alerts found</td></tr>`;
+        document.getElementById('alert-count').textContent = '';
+        return;
+      }
+
+      tbody.innerHTML = data.map((a, i) => `
+        <tr class="${i === 0 ? 'ts-incident-new' : ''}">
+          <td class="text-muted" style="white-space:nowrap;">${fmtTime(a.timestamp)}</td>
+          <td><span class="ts-badge ${severityClass(a.severity)}">${a.severity}</span></td>
+          <td class="fw-semibold text-cyan">${a.device_id}</td>
+          <td>${a.description}</td>
+          <td>
+            <span class="${a.prediction === 'Anomaly' ? 'text-danger' : 'text-success'} fw-semibold">
+              ${a.prediction === 'Anomaly' ? '🔴' : '🟢'} ${a.prediction}
+            </span>
+          </td>
+        </tr>`).join('');
+
+      document.getElementById('alert-count').textContent = `Showing ${data.length} alert(s)`;
+    }
+
+    function setFilter(btn, filter) {
+      document.querySelectorAll('.ts-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = filter;
+      loadAlerts();
+    }
+
+    function updateClock() {
+      const el = document.getElementById('live-time');
+      if (el) el.textContent = new Date().toLocaleString();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateClock();
+      setInterval(updateClock, 1000);
+      loadAlerts();
+      setInterval(loadAlerts, 15000);
+    });
+  </script>
+</body>
+</html>
